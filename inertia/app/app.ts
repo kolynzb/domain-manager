@@ -9,6 +9,9 @@ import { createInertiaApp } from '@inertiajs/vue3'
 import { resolvePageComponent } from '@adonisjs/inertia/helpers'
 import PrimeVue from 'primevue/config'
 import Aura from '@primeuix/themes/aura'
+import ToastService from 'primevue/toastservice'
+import ConfirmationService from 'primevue/confirmationservice'
+import AppLayout from '~/layouts/AppLayout.vue'
 
 const appName = import.meta.env.VITE_APP_NAME || 'Domain Manager'
 
@@ -17,11 +20,13 @@ createInertiaApp({
 
   title: (title) => `${title} - ${appName}`,
 
-  resolve: (name) => {
-    return resolvePageComponent(
+  resolve: async (name) => {
+    const page = await resolvePageComponent(
       `../pages/${name}.vue`,
       import.meta.glob<DefineComponent>('../pages/**/*.vue')
     )
+    page.default.layout = page.default.layout || AppLayout
+    return page
   },
 
   setup({ el, App, props, plugin }) {
@@ -33,7 +38,8 @@ createInertiaApp({
         preset: Aura,
       },
     })
-
+    app.use(ToastService)
+    app.use(ConfirmationService)
     app.mount(el)
   },
 })
